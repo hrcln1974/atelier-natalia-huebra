@@ -1,0 +1,1 @@
+const http=require('http');const port=process.env.PORT||3000;const req=http.get(`http://127.0.0.1:${port}/api/health`,r=>{let d='';r.on('data',c=>d+=c);r.on('end',()=>{console.log('HTTP',r.statusCode,d);process.exit(r.statusCode===200?0:1)})});req.on('error',e=>{console.error('Servidor não está rodando:',e.message);process.exit(1)});
