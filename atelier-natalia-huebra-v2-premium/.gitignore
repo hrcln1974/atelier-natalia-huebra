@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+npm-debug.log*
+data/*.db
+data/*.db-*
+public/assets/uploads/
+backups/
+.DS_Store
+Thumbs.db
