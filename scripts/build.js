@@ -1,6 +1,1 @@
-const fs=require('fs'),path=require('path');
-const root=path.join(__dirname,'..');
-const assets=path.join(root,'public','assets');
-function files(d){return fs.existsSync(d)?fs.readdirSync(d,{withFileTypes:true}).reduce((n,x)=>n+(x.isDirectory()?files(path.join(d,x.name)):1),0):0}
-console.log('Build estático validado.');console.log('Arquivos de imagem/vídeo:',files(assets));
-if(!fs.existsSync(path.join(root,'public','index.html')))process.exit(1);
+const fs=require('fs'),path=require('path');const root=path.join(__dirname,'..');const files=['public/index.html','public/app.js','public/style.css','public/admin/index.html','public/admin/admin.js','public/admin/admin.css'];let fail=0;for(const f of files){const p=path.join(root,f);const s=fs.readFileSync(p,'utf8');if(!s.trim()){console.error('EMPTY',f);fail++}else console.log('✓ build asset',f,s.length+' bytes')}if(!fs.existsSync(path.join(root,'public/assets/images/banner-natalia-huebra.webp'))) {console.error('Missing hero image');fail++}console.log(fail?'BUILD FAIL':'BUILD PASS');process.exit(fail?1:0);
