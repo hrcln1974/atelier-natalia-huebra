@@ -1,27 +1,33 @@
-# Deploy Hostinger Cloud — V12
+# Deploy Hostinger — V13.2
 
-## Variáveis
-- NODE_ENV=production
-- PORT conforme a aplicação Node da Hostinger
-- SITE_URL=https://SEU-DOMINIO
-- DB_PATH caminho persistente do SQLite
-- MEDIA_ROOT caminho persistente das mídias
-- JWT_SECRET segredo longo e aleatório
-- ADMIN_EMAIL e ADMIN_PASSWORD ou administrador criado por script
-- WHATSAPP_NUMBER
+## Variáveis de ambiente
+Configure no painel da aplicação Node.js (não no Git):
+- `NODE_ENV=production`
+- `PORT` = porta atribuída pela Hostinger
+- `SITE_URL=https://SEU-DOMINIO`
+- `DB_PATH=./data/atelier.db` ou caminho persistente equivalente
+- `MEDIA_ROOT=./public/assets/uploads` ou caminho persistente equivalente
+- `JWT_SECRET=` segredo longo e aleatório
+- `WHATSAPP_NUMBER=` número em formato internacional, somente dígitos
+- `MAX_UPLOAD_MB=50`
 
-## Pastas persistentes
-Não versionar `data/*.db` nem `public/assets/uploads/`.
+`ADMIN_EMAIL` e `ADMIN_PASSWORD` podem ser omitidos se o administrador for criado pelo script.
 
-## Start
-`npm start`
+## Deploy
+```bash
+npm ci
+node scripts/create-admin.js SEU-EMAIL 'SUA-SENHA-FORTE'
+npm start
+```
 
-## Gate
-Executar localmente e depois no servidor:
-`npm run production-gate`
+O start é `npm start`. A aplicação escuta a porta indicada por `PORT`; na Hostinger, use a porta fornecida pela configuração da aplicação, sem assumir 3000 em produção.
 
-Depois:
-`npm run smoke`
+## Persistência
+`data/*.db` e `public/assets/uploads/` não devem ser versionados. Faça backup do banco e da pasta de uploads antes de atualizações.
 
-Validar no domínio real:
-HTTPS, login, CRUD, upload, fotos, vídeos, formulário, WhatsApp, SEO, console, mobile, cache, headers, arquivos sensíveis e backup.
+## Pós-deploy
+- `GET /api/health` deve retornar HTTP 200.
+- `/admin` deve abrir e aceitar o administrador criado.
+- Sem cookie, `/api/admin/*` deve retornar 401.
+- Validar CRUD, uploads, URL de imagem, foto principal, ordem, vídeos, categorias, coleções, leads, configurações e mobile.
+- Validar HTTPS, headers, console, sitemap/robots e arquivos sensíveis.

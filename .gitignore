@@ -10,3 +10,5 @@ public/assets/uploads/
 backups/
 .DS_Store
 Thumbs.db
+data/*.sqlite
+data/*.sqlite3
