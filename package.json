@@ -1,1 +1,9 @@
-{"name":"atelier-natalia-huebra","version":"13.2.0","private":true,"description":"Plataforma premium do Atelier Natália Huebra — catálogo, CMS, mídia, vídeos, leads e atendimento.","main":"server.js","scripts":{"start":"node server.js","dev":"nodemon server.js","check":"node scripts/check.js","smoke":"node scripts/smoke.js","e2e:v13.2":"node scripts/e2e-v132.js","build":"node scripts/build.js","audit":"npm audit --omit=dev","production-gate":"node scripts/production-gate.js"},"engines":{"node":">=20"},"dependencies":{"bcryptjs":"^3.0.2","dotenv":"^16.6.1","express":"^4.21.2","express-rate-limit":"^8.1.0","helmet":"^8.1.0","jsonwebtoken":"^9.0.2","multer":"^2.0.2","sqlite3":"^6.0.1"},"devDependencies":{"nodemon":"^3.1.10"}}
+{
+  "name":"atelier-natalia-huebra",
+  "version":"3.1.0",
+  "private":true,
+  "description":"Ateliê Natália Huebra — site público e plataforma de gestão",
+  "main":"server.js",
+  "scripts":{"start":"node server.js","dev":"node --watch server.js","check":"node scripts/check.js","smoke":"node scripts/smoke.js","admin:create":"node scripts/create-admin.js"},
+  "engines":{"node":">=20"}
+}

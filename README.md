@@ -1,73 +1,56 @@
-# Atelier Natália Huebra — V13.2 Production
+# Ateliê Natália Huebra — Plataforma Premium v3.0
 
-Plataforma Node.js/Express + SQLite com site público e painel administrativo em `/admin`.
+Site público sofisticado + plataforma de gestão administrativa, mantendo a identidade visual e as fotografias/mídias originais do projeto.
 
-## V13.2 — correção de produção
-- Inicialização do administrador corrigida com `scripts/create-admin.js`.
-- Banco SQLite e uploads não fazem parte do versionamento/ZIP de entrega.
-- CRUD administrativo de vestidos, fotos, galeria, vídeos, categorias, coleções, leads e configurações.
-- Upload com limite de tamanho e tipos permitidos; URL externa exige `http://` ou `https://`.
-- Sessão JWT em cookie HttpOnly, logout e proteção das rotas administrativas.
-- Painel responsivo para viewport mobile.
-- Checks, build, smoke e production-gate preparados para validação local/Hostinger.
+## Incluído
+- Site público responsivo
+- Banner desktop + banner mobile específico
+- Galeria e lightbox
+- Catálogo
+- Vídeos locais
+- YouTube responsivo
+- WhatsApp
+- Instagram
+- Facebook
+- Formulário com persistência de leads
+- Login administrativo
+- Dashboard
+- Clientes
+- Leads/CRM
+- Agenda
+- Vestidos/coleções
+- Orçamentos
+- Pedidos
+- Ficha de medidas
+- Financeiro
+- Configurações
+- Auditoria
+- Headers de segurança
+- Rate limit de login
+- Sessão HttpOnly/SameSite
+- Estrutura preparada para Hostinger
 
-## Acesso administrativo
-URL: `/admin`
-
-Criar ou redefinir o administrador:
+## Testes locais
 ```bash
-node scripts/create-admin.js admin@seudominio.com.br 'SUA-SENHA-FORTE'
-```
-
-O comando grava/atualiza somente o usuário informado com `role=admin`. Não coloque a senha no Git.
-
-## Variáveis obrigatórias em `.env`
-- `NODE_ENV=production`
-- `PORT` — porta atribuída pela Hostinger
-- `SITE_URL` — URL pública com HTTPS
-- `DB_PATH` — caminho persistente do SQLite
-- `MEDIA_ROOT` — caminho persistente das mídias
-- `JWT_SECRET` — segredo longo e aleatório (mínimo recomendado: 32 caracteres)
-- `WHATSAPP_NUMBER`
-- `MAX_UPLOAD_MB`
-
-`ADMIN_EMAIL`/`ADMIN_PASSWORD` são opcionais quando o administrador for criado pelo script. Valores reais ficam somente no `.env`/painel da Hostinger.
-
-## Instalação local
-```bash
-npm ci
-cp .env.example .env
-node scripts/create-admin.js admin@seudominio.com.br 'SUA-SENHA-FORTE'
+npm run check
+npm run smoke
 npm start
 ```
 
-## Verificações
+Acesse `http://localhost:3000/` e `http://localhost:3000/admin`.
+
+## Administração
+Defina `ADMIN_PASSWORD` no ambiente ou use:
 ```bash
-npm run check
-npm run build
-npm run smoke
-npm run production-gate
+npm run admin:create -- email senha-forte
 ```
 
-`npm run smoke` exige que o servidor já esteja rodando na porta definida em `PORT`. `production-gate` cria banco/mídia temporários e executa smoke HTTP isolado.
+## Deploy
+Consulte `HOSTINGER.md`.
 
-## Hostinger
-1. Criar a aplicação Node.js com Node 20+.
-2. Subir o conteúdo do ZIP sem `node_modules`, `.env` e banco.
-3. Configurar as variáveis do `.env` no painel da Hostinger.
-4. Garantir que `DB_PATH` e `MEDIA_ROOT` apontem para áreas persistentes e graváveis.
-5. Executar `npm ci` no servidor.
-6. Criar o administrador: `node scripts/create-admin.js SEU-EMAIL 'SUA-SENHA'`.
-7. Start: `npm start`. A porta deve ser a `PORT` fornecida/configurada pela aplicação Node da Hostinger; não fixe uma porta diferente.
-8. Validar `/api/health`, `/admin`, login, CRUD, uploads, formulário, WhatsApp, HTTPS e mobile.
 
-## Dados existentes
-A base entregue continha 6 vestidos e 6 mídias, sem usuário administrador. Esses dados foram tratados como dados a preservar; a correção não apaga o conteúdo. A cópia do banco usada durante a correção fica apenas no backup local e não é incluída no ZIP.
+## Integração pública real — v3.1.0
+O site público consome `/api/public` sem autenticação. Catálogo/vestidos, galeria, vídeos e configurações são persistidos no banco JSON e refletidos automaticamente no frontend. O painel permite criar, editar e excluir esses registros.
 
-## Fora do escopo desta V13.2
-- Agente de IA / Atendimento automatizado
-- Base de conhecimento da IA
-- Histórico de conversas da IA
-- Handoff IA → humano
-- Configuração da IA no painel Admin
-- Hardening avançado (CSRF robusto, expiração/renovação de sessão, auditoria de login)
+### Fluxo validado
+`Painel → API autenticada → banco → API pública → site`
