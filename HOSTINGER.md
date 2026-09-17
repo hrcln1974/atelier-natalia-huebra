@@ -92,7 +92,7 @@ O site mantém o frontend existente e suas mídias:
 
 
 ### Verificação pós-deploy da integração
-1. Abra `/health` e confirme `version: 3.1.0`.
+1. Abra `/health` e confirme `version: 3.2.0`.
 2. Acesse `/admin`, faça login e cadastre/edite um vestido em **Vestidos / Coleções**.
 3. Cadastre uma foto em **Galeria** com `assets/nome-do-arquivo.jpg` e status `publicado`.
 4. Cadastre um vídeo em **Vídeos** com `videos/video1.mp4` ou URL do YouTube e status `publicado`.

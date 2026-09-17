@@ -4,16 +4,16 @@ const ROOT=__dirname, PORT=Number(process.env.PORT||3000), DATA_DIR=path.join(RO
 fs.mkdirSync(DATA_DIR,{recursive:true});fs.mkdirSync(UPLOAD_DIR,{recursive:true});
 const defaults={business_name:'Ateliê Natália Huebra',phone:'(28) 99983-5920',email:'natytuany@hotmail.com',address:'R. Salomão Fadlalah, 86, Ibatiba - ES, 29395-000',instagram:'https://www.instagram.com/nataliahuebra',facebook:'https://www.facebook.com/share/1Emdx3eSRE/?mibextid=wwXIfr',youtube:'https://www.youtube.com/embed/MqpiMHmU2vI'};
 const seedProducts=[
- {name:'Romance Atemporal',code:'NH-001',category:'Noivas',collection:'Essenciais',size:'Sob medida',color:'Off-white',fabric:'Renda',description:'Silhueta delicada, renda e acabamento sofisticado.',price:'Consulte',status:'disponivel',image:'assets/catalogo-vestido-1.jpg'},
- {name:'Elegância em Movimento',code:'NH-002',category:'Festa',collection:'Celebração',size:'Sob medida',color:'Variado',fabric:'Sob consulta',description:'Modelagem marcante para celebrar com personalidade.',price:'Consulte',status:'disponivel',image:'assets/catalogo-vestido-2.jpg'},
- {name:'Exclusividade',code:'NH-003',category:'Sob encomenda',collection:'Personalizados',size:'Sob medida',color:'Personalizado',fabric:'Sob consulta',description:'Uma criação personalizada para o seu estilo e ocasião.',price:'Consulte',status:'disponivel',image:'assets/catalogo-vestido-3.jpg'}
+ {name:'Romance Atemporal',code:'NH-001',category:'Noivas',collection:'Essenciais',size:'Sob medida',color:'Off-white',fabric:'Renda',description:'Silhueta delicada, renda e acabamento sofisticado.',price:'Consulte',status:'disponivel',image:'assets/catalogo-vestido-1.webp'},
+ {name:'Elegância em Movimento',code:'NH-002',category:'Festa',collection:'Celebração',size:'Sob medida',color:'Variado',fabric:'Sob consulta',description:'Modelagem marcante para celebrar com personalidade.',price:'Consulte',status:'disponivel',image:'assets/catalogo-vestido-2.webp'},
+ {name:'Exclusividade',code:'NH-003',category:'Sob encomenda',collection:'Personalizados',size:'Sob medida',color:'Personalizado',fabric:'Sob consulta',description:'Uma criação personalizada para o seu estilo e ocasião.',price:'Consulte',status:'disponivel',image:'assets/catalogo-vestido-3.webp'}
 ];
 const seedGallery=[
- {title:'Detalhes de renda',category:'noivas',url:'assets/noiva-renda.jpg',caption:'Detalhes de renda em vestido de noiva',status:'publicado',order:1},
- {title:'Criação para noiva',category:'noivas',url:'assets/noiva-2.jpg',caption:'Vestido de noiva',status:'publicado',order:2},
- {title:'Vestido de festa',category:'festa',url:'assets/modelo-1.jpg',caption:'Modelo usando vestido de festa',status:'publicado',order:3},
- {title:'Ambiente do Ateliê',category:'atelie',url:'assets/atelie-1.jpg',caption:'Ambiente do Ateliê Natália Huebra',status:'publicado',order:4},
- {title:'Detalhes do Ateliê',category:'atelie',url:'assets/atelie-2.jpg',caption:'Detalhes do Ateliê Natália Huebra',status:'publicado',order:5}
+ {title:'Detalhes de renda',category:'noivas',url:'assets/noiva-renda.webp',caption:'Detalhes de renda em vestido de noiva',status:'publicado',order:1},
+ {title:'Criação para noiva',category:'noivas',url:'assets/noiva-2.webp',caption:'Vestido de noiva',status:'publicado',order:2},
+ {title:'Vestido de festa',category:'festa',url:'assets/modelo-1.webp',caption:'Modelo usando vestido de festa',status:'publicado',order:3},
+ {title:'Ambiente do Ateliê',category:'atelie',url:'assets/atelie-1.webp',caption:'Ambiente do Ateliê Natália Huebra',status:'publicado',order:4},
+ {title:'Detalhes do Ateliê',category:'atelie',url:'assets/atelie-2.webp',caption:'Detalhes do Ateliê Natália Huebra',status:'publicado',order:5}
 ];
 const seedVideos=[
  {title:'Conheça o Ateliê',category:'Institucional',url:'videos/video3.mp4',caption:'Ateliê Natália Huebra',type:'local',status:'publicado',order:1},
@@ -63,7 +63,7 @@ function safe(v){if(v===undefined||v===null)return '';return String(v).slice(0,5
 const adminHTML=fs.readFileSync(path.join(ROOT,'public/admin/index.html'),'utf8');
 async function route(req,res){
  const u=url.parse(req.url,true), p=u.pathname;
- if(p==='/health')return send(res,200,{ok:true,service:'atelier-natalia-huebra',version:'3.1.0'});
+ if(p==='/health')return send(res,200,{ok:true,service:'atelier-natalia-huebra',version:'3.2.0'});
  if(p==='/admin')return html(res,200,adminHTML);
  if(p==='/api/settings'&&req.method==='GET')return send(res,200,db.settings);
  if(p==='/api/public'&&req.method==='GET')return send(res,200,{settings:db.settings,products:db.products.filter(x=>x.status!=='inativo'&&x.status!=='oculto'),gallery:db.gallery.filter(x=>x.status==='publicado').sort((a,b)=>Number(a.order||0)-Number(b.order||0)),videos:db.videos.filter(x=>x.status==='publicado').sort((a,b)=>Number(a.order||0)-Number(b.order||0))});
@@ -76,9 +76,9 @@ async function route(req,res){
  if(p==='/api/dashboard'){const today=new Date().toISOString().slice(0,10);return send(res,200,{clients:db.clients.length,leads:db.leads.length,appointments:db.appointments.filter(x=>x.starts_at&&x.starts_at.slice(0,10)===today).length,products:db.products.length,orders:db.orders.length,gallery:db.gallery.length,videos:db.videos.length,pending:db.payments.filter(x=>x.status==='pendente').reduce((a,x)=>a+Number(x.amount||0),0)})}
  if(p==='/api/audit')return send(res,200,db.audit_logs.slice(-300).reverse().map(a=>({...a,email:db.users.find(u=>u.id===a.user_id)?.email||null})));
  if(p==='/api/settings'&&req.method==='PUT'){const b=await readBody(req);for(const k of Object.keys(defaults))if(k in b)db.settings[k]=safe(b[k]);save();log(req,'update','settings');return send(res,200,{ok:true})}
- const m=p.match(/^\/api\/(clients|leads|appointments|products|quotes|orders|measurements|payments)(?:\/(\d+))?$/);if(m){const k=m[1],id=m[2],fspec=fields[k];if(req.method==='GET')return send(res,200,db[k].slice(-500).reverse());if(req.method==='POST'){const b=await readBody(req),o={};for(const f of fspec)o[f]=safe(b[f]);if(k==='clients'&&!o.name)return send(res,400,{error:'Nome obrigatório'});const x=add(k,o);log(req,'create',k,x.id);return send(res,201,{id:x.id})}if(id&&req.method==='PUT'){const o=find(k,id);if(!o)return send(res,404,{error:'Registro não encontrado'});const b=await readBody(req);for(const f of fspec)if(f in b)o[f]=safe(b[f]);o.updated_at=new Date().toISOString();save();log(req,'update',k,Number(id));return send(res,200,{ok:true})}if(id&&req.method==='DELETE'){const idx=db[k].findIndex(x=>x.id===Number(id));if(idx<0)return send(res,404,{error:'Registro não encontrado'});db[k].splice(idx,1);save();log(req,'delete',k,Number(id));return send(res,200,{ok:true})}}
+ const m=p.match(/^\/api\/(clients|leads|appointments|products|quotes|orders|measurements|payments|gallery|videos)(?:\/(\d+))?$/);if(m){const k=m[1],id=m[2],fspec=fields[k];if(req.method==='GET')return send(res,200,db[k].slice(-500).reverse());if(req.method==='POST'){const b=await readBody(req),o={};for(const f of fspec)o[f]=safe(b[f]);if(k==='clients'&&!o.name)return send(res,400,{error:'Nome obrigatório'});const x=add(k,o);log(req,'create',k,x.id);return send(res,201,{id:x.id})}if(id&&req.method==='PUT'){const o=find(k,id);if(!o)return send(res,404,{error:'Registro não encontrado'});const b=await readBody(req);for(const f of fspec)if(f in b)o[f]=safe(b[f]);o.updated_at=new Date().toISOString();save();log(req,'update',k,Number(id));return send(res,200,{ok:true})}if(id&&req.method==='DELETE'){const idx=db[k].findIndex(x=>x.id===Number(id));if(idx<0)return send(res,404,{error:'Registro não encontrado'});db[k].splice(idx,1);save();log(req,'delete',k,Number(id));return send(res,200,{ok:true})}}
  if(staticFile(req,res,p==='/'?'/index.html':p.slice(1)))return;
  return send(res,404,{error:'Não encontrado'});
 }
 const server=http.createServer((req,res)=>{route(req,res).catch(e=>{console.error(e);send(res,500,{error:'Erro interno'})})});
-server.listen(PORT,()=>console.log(`Ateliê Natália Huebra v3.1.0 — http://localhost:${PORT}`));
+server.listen(PORT,()=>console.log(`Ateliê Natália Huebra v3.2.0 — http://localhost:${PORT}`));

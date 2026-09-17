@@ -49,7 +49,7 @@ npm run admin:create -- email senha-forte
 Consulte `HOSTINGER.md`.
 
 
-## Integração pública real — v3.1.0
+## Integração pública real — v3.2.0
 O site público consome `/api/public` sem autenticação. Catálogo/vestidos, galeria, vídeos e configurações são persistidos no banco JSON e refletidos automaticamente no frontend. O painel permite criar, editar e excluir esses registros.
 
 ### Fluxo validado

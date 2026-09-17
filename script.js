@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!grid || !Array.isArray(products) || !products.length) return;
     grid.innerHTML = products.map((p) => `
       <article class="catalog-card">
-        <img src="${escapeHtml(p.image || "assets/catalogo-vestido-1.jpg")}" alt="${escapeHtml(p.name || "Vestido do Ateliê")}" loading="lazy">
+        <img src="${escapeHtml(p.image || "assets/catalogo-vestido-1.webp")}" alt="${escapeHtml(p.name || "Vestido do Ateliê")}" loading="lazy">
         <div class="catalog-card-content">
           <p class="card-kicker">${escapeHtml(p.category || "COLEÇÃO")}</p>
           <h3>${escapeHtml(p.name || "Criação Natália Huebra")}</h3>

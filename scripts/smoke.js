@@ -1,14 +1,25 @@
-const http=require('http');const {spawn}=require('child_process');
-const port=37891, email='smoke@atelier.local', password='Smoke@123456';
-const s=spawn(process.execPath,['server.js'],{env:{...process.env,PORT:String(port),NODE_ENV:'test',ADMIN_EMAIL:email,ADMIN_PASSWORD:password}});
-function req(method,path,body='',cookie=''){return new Promise((resolve,reject)=>{const data=body?Buffer.from(JSON.stringify(body)):null;const r=http.request({hostname:'127.0.0.1',port,path,method,headers:{...(data?{'Content-Type':'application/json','Content-Length':data.length}:{}),...(cookie?{'Cookie':cookie}:{})}},x=>{let d='';x.on('data',c=>d+=c);x.on('end',()=>resolve({status:x.statusCode,headers:x.headers,body:d}))});r.on('error',reject);if(data)r.write(data);r.end()})}
-(async()=>{try{await new Promise(r=>setTimeout(r,700));for(const p of ['/health','/','/admin']){const r=await req('GET',p);if(r.status!==200)throw new Error(`${p}: HTTP ${r.status}`);console.log('OK',p,r.status)}
- const pub=await req('GET','/api/public');if(pub.status!==200)throw new Error('/api/public: HTTP '+pub.status);const pd=JSON.parse(pub.body);if(!pd.products.length||!pd.gallery.length||!pd.videos.length)throw new Error('conteúdo público inicial incompleto');console.log('OK /api/public integração',pd.products.length,'produtos,',pd.gallery.length,'fotos,',pd.videos.length,'vídeos');
- const login=await req('POST','/api/auth/login',{email,password});if(login.status!==200)throw new Error('login HTTP '+login.status);const cookie=(login.headers['set-cookie']||[])[0]?.split(';')[0];if(!cookie)throw new Error('cookie de sessão ausente');console.log('OK login autenticado');
- const me=await req('GET','/api/auth/me','',cookie);if(me.status!==200)throw new Error('/api/auth/me HTTP '+me.status);console.log('OK sessão');
- const create=await req('POST','/api/products',{name:'Smoke Integração',category:'Teste',description:'Registro temporário',price:'0',status:'publicado',image:'assets/modelo-1.jpg'},cookie);if(create.status!==201)throw new Error('criação HTTP '+create.status);const id=JSON.parse(create.body).id;
- const pub2=JSON.parse((await req('GET','/api/public')).body);if(!pub2.products.some(x=>x.id===id))throw new Error('registro não chegou ao site público');console.log('OK painel → banco → site');
- const upd=await req('PUT','/api/products/'+id,{name:'Smoke Editado',status:'inativo'},cookie);if(upd.status!==200)throw new Error('edição HTTP '+upd.status);
- const pub3=JSON.parse((await req('GET','/api/public')).body);if(pub3.products.some(x=>x.id===id))throw new Error('status inativo ainda publicado');console.log('OK edição/publicação');
- const del=await req('DELETE','/api/products/'+id,'',cookie);if(del.status!==200)throw new Error('exclusão HTTP '+del.status);console.log('OK exclusão');
- console.log('SMOKE TEST PASS — integração pública + autenticação + CRUD');s.kill();process.exit(0)}catch(e){console.error('SMOKE FAIL',e.message);s.kill();process.exit(1)}})();
+'use strict';
+const fs=require('fs'),http=require('http'),{spawn}=require('child_process');
+const path=require('path');
+const port=37892, db=path.join(__dirname,'..','data','smoke-db.json');
+try{fs.unlinkSync(db)}catch{}
+const email='smoke@atelier.local',password='Smoke@123456';
+const s=spawn(process.execPath,['server.js'],{env:{...process.env,PORT:String(port),NODE_ENV:'test',DB_PATH:db,ADMIN_EMAIL:email,ADMIN_PASSWORD:password},stdio:['ignore','pipe','pipe']});
+let output=''; s.stdout.on('data',d=>output+=d); s.stderr.on('data',d=>output+=d);
+function req(method,p,body,cookie=''){return new Promise((resolve,reject)=>{let data=body===undefined?null:Buffer.from(JSON.stringify(body));const r=http.request({hostname:'127.0.0.1',port,path:p,method,headers:{...(data?{'Content-Type':'application/json','Content-Length':data.length}:{}),...(cookie?{'Cookie':cookie}:{})}},x=>{let d='';x.on('data',c=>d+=c);x.on('end',()=>resolve({status:x.statusCode,headers:x.headers,body:d}))});r.on('error',reject);if(data)r.write(data);r.end()})}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+(async()=>{try{
+ await wait(600);
+ for(const p of ['/health','/','/admin','/assets/banner-natalia-huebra.webp','/assets/banner-natalia-huebra-mobile.webp','/videos/video1.mp4']){const r=await req('GET',p);if(r.status!==200)throw Error(`${p} HTTP ${r.status}`);console.log('OK',p,r.status)}
+ let r=await req('GET','/api/public'); if(r.status!==200)throw Error('/api/public'); let pub=JSON.parse(r.body); if(pub.products.length<3||pub.gallery.length<5||pub.videos.length<4)throw Error('seed público incompleto'); console.log(`OK API pública ${pub.products.length} produtos, ${pub.gallery.length} fotos, ${pub.videos.length} vídeos`);
+ r=await req('POST','/api/auth/login',{email,password}); if(r.status!==200)throw Error('login'); const cookie=r.headers['set-cookie']?.[0]?.split(';')[0]; if(!cookie)throw Error('cookie ausente'); console.log('OK login');
+ r=await req('GET','/api/auth/me',undefined,cookie);if(r.status!==200)throw Error('me');console.log('OK sessão');
+ r=await req('POST','/api/products',{name:'Smoke Produto',category:'Teste',status:'disponivel',image:'assets/catalogo-vestido-1.webp'},cookie);if(r.status!==201)throw Error('produto create');const pid=JSON.parse(r.body).id; console.log('OK painel → banco produto');
+ r=await req('PUT','/api/products/'+pid,{name:'Smoke Produto Editado',status:'inativo'},cookie);if(r.status!==200)throw Error('produto edit');
+ r=await req('DELETE','/api/products/'+pid,undefined,cookie);if(r.status!==200)throw Error('produto delete'); console.log('OK CRUD produto');
+ r=await req('POST','/api/gallery',{title:'Smoke Galeria',category:'teste',url:'assets/modelo-1.webp',caption:'teste',status:'publicado',order:99},cookie);if(r.status!==201)throw Error('gallery create');const gid=JSON.parse(r.body).id;pub=JSON.parse((await req('GET','/api/public')).body);if(!pub.gallery.some(x=>x.id===gid))throw Error('gallery não chegou ao público');await req('DELETE','/api/gallery/'+gid,undefined,cookie);console.log('OK integração galeria');
+ r=await req('POST','/api/videos',{title:'Smoke Vídeo',category:'teste',url:'videos/video1.mp4',caption:'teste',type:'local',status:'publicado',order:99},cookie);if(r.status!==201)throw Error('video create');const vid=JSON.parse(r.body).id;pub=JSON.parse((await req('GET','/api/public')).body);if(!pub.videos.some(x=>x.id===vid))throw Error('video não chegou ao público');await req('DELETE','/api/videos/'+vid,undefined,cookie);console.log('OK integração vídeos');
+ r=await req('PUT','/api/settings',{phone:'(28) 99983-5920',email:'natytuany@hotmail.com'},cookie);if(r.status!==200)throw Error('settings');console.log('OK configurações');
+ console.log('SMOKE TEST PASS — V3.2.0 unificada: site + painel + API + banco + conteúdo público');
+ s.kill();try{fs.unlinkSync(db)}catch{}process.exit(0)
+}catch(e){console.error('SMOKE FAIL',e.message);console.error(output);s.kill();try{fs.unlinkSync(db)}catch{}process.exit(1)}})();
