@@ -1,8 +1,8 @@
 node_modules/
 .env
-.DS_Store
-*.log
-data/db.json
-data/db.json.tmp
+.env.*
+!.env.example
+data/*.json
 storage/uploads/*
 !storage/uploads/.gitkeep
+*.log

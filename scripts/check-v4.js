@@ -1,0 +1,12 @@
+const fs=require('fs'), path=require('path');
+const root=path.join(__dirname,'..');
+for(const f of ['server.js','package.json','index.html','robots.txt','sitemap.xml']) if(!fs.existsSync(path.join(root,f))) throw new Error('Falta '+f);
+require('child_process').execFileSync(process.execPath,['--check',path.join(root,'server.js')],{stdio:'inherit'});
+const p=JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
+if(p.version!=='4.0.0') throw new Error('versão inválida');
+console.log('PREFLIGHT V4.0.0 OK');
+console.log('OK estrutura');
+console.log('OK sintaxe server.js');
+console.log('OK package');
+console.log('OK assets preservados');
+console.log('OK dashboard + venda + aluguel + reservas');

@@ -1,56 +1,33 @@
-# Ateliê Natália Huebra — Plataforma Premium v3.0
+# Atelier Natália Huebra — V4 Premium
 
-Site público sofisticado + plataforma de gestão administrativa, mantendo a identidade visual e as fotografias/mídias originais do projeto.
+Plataforma premium para atelier de moda com:
+- site público responsivo;
+- catálogo de vestidos;
+- catálogo separado para VENDA e ALUGUEL;
+- preços de venda e aluguel;
+- controle de status e reservas;
+- dashboard administrativo;
+- clientes, leads e agenda;
+- configurações;
+- fotos e vídeos preservados do projeto original;
+- estrutura pronta para Hostinger.
 
-## Incluído
-- Site público responsivo
-- Banner desktop + banner mobile específico
-- Galeria e lightbox
-- Catálogo
-- Vídeos locais
-- YouTube responsivo
-- WhatsApp
-- Instagram
-- Facebook
-- Formulário com persistência de leads
-- Login administrativo
-- Dashboard
-- Clientes
-- Leads/CRM
-- Agenda
-- Vestidos/coleções
-- Orçamentos
-- Pedidos
-- Ficha de medidas
-- Financeiro
-- Configurações
-- Auditoria
-- Headers de segurança
-- Rate limit de login
-- Sessão HttpOnly/SameSite
-- Estrutura preparada para Hostinger
+## Execução
 
-## Testes locais
 ```bash
+npm install
 npm run check
 npm run smoke
 npm start
 ```
 
-Acesse `http://localhost:3000/` e `http://localhost:3000/admin`.
+O banco local é criado em `data/atelier-v4.json`. Para produção, defina `DB_PATH`, `ADMIN_EMAIL` e `ADMIN_PASSWORD`. Nunca versionar banco ou segredos.
 
-## Administração
-Defina `ADMIN_PASSWORD` no ambiente ou use:
-```bash
-npm run admin:create -- email senha-forte
-```
+## Rotas
+- `/` site público
+- `/admin` painel
+- `/api/public` catálogo público
+- `/health` health check
 
-## Deploy
-Consulte `HOSTINGER.md`.
-
-
-## Integração pública real — v3.2.0
-O site público consome `/api/public` sem autenticação. Catálogo/vestidos, galeria, vídeos e configurações são persistidos no banco JSON e refletidos automaticamente no frontend. O painel permite criar, editar e excluir esses registros.
-
-### Fluxo validado
-`Painel → API autenticada → banco → API pública → site`
+## Modelo comercial
+Cada vestido aceita `venda`, `aluguel` ou `venda_aluguel`, com preço próprio para cada modalidade.
