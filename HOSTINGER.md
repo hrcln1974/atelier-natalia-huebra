@@ -1,100 +1,109 @@
-# Ateliê Natália Huebra — Deploy Hostinger
+# Ateliê Natália Huebra — V5 Premium / Hostinger
 
-## 1. Requisitos
-- Node.js 20+ (22 recomendado)
-- Aplicação Node.js na Hostinger
-- Diretório da aplicação apontando para a pasta do projeto
+## Requisitos
+- Node.js 20+
 - Startup file: `server.js`
+- HTTPS ativo no domínio
+- Armazenamento persistente para `data/` e `public/uploads/`
 
-## 2. Variáveis de ambiente
-Configure no painel da Hostinger:
+## Variáveis obrigatórias
+Configure no painel da Hostinger e **não** coloque valores reais no GitHub:
 
 ```text
 NODE_ENV=production
-PORT=<porta fornecida pela Hostinger, se exigida>
-DB_PATH=./data/db.json
+PORT=<porta da Hostinger, se exigida>
+DB_PATH=./data/atelier-v5.json
 ADMIN_EMAIL=seu-email-de-administrador
-ADMIN_PASSWORD=uma-senha-forte-e-unica
+ADMIN_PASSWORD=uma-senha-forte-com-12-ou-mais-caracteres
+MAX_UPLOAD_BYTES=52428800
 ```
 
-Nunca coloque senha real no GitHub.
+Se o banco ainda não possuir usuário, o primeiro start cria o administrador usando `ADMIN_EMAIL` e `ADMIN_PASSWORD`.
 
-## 3. Instalação
-Como a versão 3.0 usa somente módulos nativos do Node.js, não há dependências externas para instalar.
-
-Se a Hostinger solicitar comandos:
+Para trocar a senha/administrador localmente:
 
 ```bash
-npm install
-npm start
+node scripts/create-admin.js novo-email nova-senha-forte
 ```
 
-## 4. Primeiro acesso ao painel
-Abra:
+## Acesso
 
 ```text
 https://SEU-DOMINIO/admin
 ```
 
-O primeiro `npm start` cria `data/db.json`. Se `ADMIN_PASSWORD` estiver definido, o administrador inicial é criado automaticamente.
+Agora `/admin` **não libera o painel diretamente**. A tela de login é obrigatória e a API também exige sessão válida.
 
-Para trocar/criar o administrador:
+## Segurança V5
+- senha com `scrypt` + salt;
+- sessão aleatória em cookie `HttpOnly`;
+- `SameSite=Lax`;
+- `Secure` em produção;
+- expiração de sessão;
+- rate limit para login;
+- bloqueio após tentativas repetidas;
+- proteção de origem em operações de escrita;
+- headers de segurança;
+- CSP;
+- auditoria de login e alterações;
+- validação de upload e limite de tamanho;
+- API administrativa protegida no servidor.
 
-```bash
-npm run admin:create -- seu-email senha-forte
+## Catálogo
+O site possui rotas separadas:
+
+- `/venda` — catálogo de vestidos para venda;
+- `/aluguel` — catálogo de vestidos para aluguel;
+- `/vestidos` — curadoria geral;
+- `/galeria` — galeria;
+- `/videos` — vídeos;
+- `/admin` — painel.
+
+Cada vestido pode ser marcado como:
+
+```text
+sale    = venda
+rental  = aluguel
+both    = venda + aluguel
 ```
 
-## 5. Persistência
-O banco desta versão é um arquivo JSON em `data/db.json`, adequado para uma operação pequena/média em uma única instância Node. Inclua `data/` nos backups da Hostinger.
+## Mídia
+O painel permite cadastrar fotos e vídeos e, para fotos/vídeos enviados pelo administrador, salvar os arquivos em:
 
-## 6. Estrutura pública
-O site mantém o frontend existente e suas mídias:
-- `assets/banner-natalia-huebra.png`
-- `assets/banner-natalia-huebra-mobile.png`
-- todas as fotografias existentes
-- `videos/video1.mp4`
-- `videos/video2.mp4`
-- `videos/video3.mp4`
+```text
+public/uploads/media/
+```
 
-## 7. Rotas
-- `/` — site público
-- `/admin` — gestão
-- `/health` — health check
-- `/api/auth/*` — autenticação
-- `/api/dashboard` — KPIs
-- `/api/clients` — clientes
-- `/api/leads` — CRM/leads
-- `/api/appointments` — agenda
-- `/api/products` — vestidos
-- `/api/quotes` — orçamentos
-- `/api/orders` — pedidos
-- `/api/measurements` — medidas
-- `/api/payments` — financeiro
-- `/api/settings` — configurações
-- `/api/audit` — auditoria
+Faça backup dessa pasta juntamente com `data/`.
 
-## 8. Checklist pós-deploy
-- [ ] `https://SEU-DOMINIO/` abre com HTTP 200
-- [ ] banner desktop aparece
-- [ ] banner mobile aparece no celular
-- [ ] fotos e vídeos carregam
-- [ ] YouTube carrega
-- [ ] WhatsApp abre
-- [ ] Instagram abre
-- [ ] Facebook abre
-- [ ] formulário cria lead
-- [ ] `/admin` abre
-- [ ] login funciona
-- [ ] dashboard funciona
-- [ ] criação/edição/exclusão de registros funciona
-- [ ] HTTPS ativo
-- [ ] backup configurado
+## Teste local obrigatório antes do deploy
 
+```bash
+npm install
+npm run check
+npm run smoke
+```
 
-### Verificação pós-deploy da integração
-1. Abra `/health` e confirme `version: 3.2.0`.
-2. Acesse `/admin`, faça login e cadastre/edite um vestido em **Vestidos / Coleções**.
-3. Cadastre uma foto em **Galeria** com `assets/nome-do-arquivo.jpg` e status `publicado`.
-4. Cadastre um vídeo em **Vídeos** com `videos/video1.mp4` ou URL do YouTube e status `publicado`.
-5. Abra o site público e confirme a atualização sem editar HTML.
-6. Em **Configurações**, altere telefone/e-mail/redes e confirme no rodapé/contato.
+O smoke test valida:
+- site público;
+- painel;
+- acesso sem autenticação bloqueado;
+- login correto/incorreto;
+- sessão;
+- logout;
+- CRUD de cliente;
+- CRUD de vestido;
+- venda/aluguel;
+- auditoria.
+
+## Pós-deploy
+1. `/health` deve responder `version: 5.0.0`.
+2. `/admin` deve mostrar login.
+3. Senha incorreta deve ser recusada.
+4. Login correto deve abrir Dashboard.
+5. `/api/clients` sem login deve responder `401`.
+6. `/venda` e `/aluguel` devem abrir separadamente.
+7. Fotos e vídeos devem carregar.
+8. Upload deve funcionar e permanecer após reinício.
+9. Backup de `data/` e `public/uploads/` deve estar configurado.
+10. Testar HTTPS e domínio antes de considerar produção aprovada.

@@ -26,7 +26,7 @@
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="preload" as="image" href="/assets/images/banner-natalia-huebra.webp" fetchpriority="high" />
+    <link rel="preload" as="image" href="/assets/images/banner-natalia-huebra.png" fetchpriority="high" />
     <link rel="stylesheet" href="/style.css" />
     <title>Atelier Natália Huebra | Noivas • Festa • Alta-Costura</title>
   </head>
@@ -53,7 +53,7 @@
           <span></span><span></span><span></span>
         </button>
         <nav id="nav" class="nav" aria-label="Navegação principal">
-          <a href="/atelier">O Atelier</a><a href="/vestidos">Noivas & Festa</a
+          <a href="/atelier">O Atelier</a><a href="/vestidos">Noivas & Festa</a><a href="/venda">Venda</a><a href="/aluguel">Aluguel</a
           ><a href="/colecoes">Coleções</a><a href="/galeria">Galeria</a
           ><a href="/videos">Vídeos</a><a href="/sob-encomenda">Sob Encomenda</a
           ><a class="nav-cta" href="/contato"
@@ -111,6 +111,8 @@
       <button aria-label="Fechar imagem" class="lightbox-close">×</button
       ><img alt="" />
     </div>
+    <div id="cookie-consent" class="cookie-consent" hidden><div><strong>Privacidade e cookies</strong><p>Usamos cookies necessários para o funcionamento do site e, quando aplicável, recursos opcionais para melhorar a experiência. Você pode escolher suas preferências.</p></div><div class="cookie-actions"><button id="cookie-reject" class="btn ghost">Recusar opcionais</button><a class="btn ghost" href="/privacidade">Privacidade</a><button id="cookie-accept" class="btn primary">Aceitar</button></div></div>
+    <script>document.addEventListener('DOMContentLoaded',()=>{const b=document.querySelector('#cookie-consent');if(!localStorage.getItem('nh_cookie_consent'))b.hidden=false;document.querySelector('#cookie-accept')?.addEventListener('click',()=>{localStorage.setItem('nh_cookie_consent','accepted');b.hidden=true});document.querySelector('#cookie-reject')?.addEventListener('click',()=>{localStorage.setItem('nh_cookie_consent','necessary');b.hidden=true})});</script>
     <script src="/app.js" defer></script>
   </body>
 </html>

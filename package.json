@@ -1,16 +1,16 @@
 {
   "name": "atelier-natalia-huebra",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "private": true,
   "description": "Ateliê Natália Huebra — site público e plataforma de gestão",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "check": "node scripts/check-v4.js",
-    "smoke": "node scripts/smoke-v4.js",
+    "check": "node --check server.js && node --check public/app.js && node --check public/admin/admin.js",
+    "smoke": "node scripts/smoke-v5.js",
     "admin:create": "node scripts/create-admin.js",
-    "build": "node scripts/check-v4.js"
+    "build": "npm run check"
   },
   "engines": {
     "node": ">=20"
