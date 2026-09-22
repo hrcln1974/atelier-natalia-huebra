@@ -1,4 +1,4 @@
-# Ateliê Natália Huebra — V5 Premium / Hostinger
+# Ateliê Natália Huebra — V6 Premium / Hostinger
 
 ## Requisitos
 - Node.js 20+
@@ -12,7 +12,7 @@ Configure no painel da Hostinger e **não** coloque valores reais no GitHub:
 ```text
 NODE_ENV=production
 PORT=<porta da Hostinger, se exigida>
-DB_PATH=./data/atelier-v5.json
+DB_PATH=./data/atelier-v6.json
 ADMIN_EMAIL=seu-email-de-administrador
 ADMIN_PASSWORD=uma-senha-forte-com-12-ou-mais-caracteres
 MAX_UPLOAD_BYTES=52428800
@@ -34,7 +34,7 @@ https://SEU-DOMINIO/admin
 
 Agora `/admin` **não libera o painel diretamente**. A tela de login é obrigatória e a API também exige sessão válida.
 
-## Segurança V5
+## Segurança V6
 - senha com `scrypt` + salt;
 - sessão aleatória em cookie `HttpOnly`;
 - `SameSite=Lax`;
@@ -97,7 +97,7 @@ O smoke test valida:
 - auditoria.
 
 ## Pós-deploy
-1. `/health` deve responder `version: 5.0.0`.
+1. `/health` deve responder `version: 6.0.0`.
 2. `/admin` deve mostrar login.
 3. Senha incorreta deve ser recusada.
 4. Login correto deve abrir Dashboard.

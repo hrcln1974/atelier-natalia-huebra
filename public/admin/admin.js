@@ -3,6 +3,8 @@ let state = {
   section: "dashboard",
   dresses: [],
   leads: [],
+  clients: [],
+  appointments: [],
   videos: [],
   categories: [],
   collections: [],
@@ -33,7 +35,7 @@ function formFields(d = {}) {
   return `<div class="form-grid"><div class="field"><label>Nome *</label><input name="name" required value="${esc(d.name)}"></div><div class="field"><label>Slug</label><input name="slug" value="${esc(d.slug)}" placeholder="gerado automaticamente se vazio"></div><div class="field"><label>Categoria</label><select name="category"><option value="">Selecione</option>${state.categories.map((c) => `<option ${d.category === c.name ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div><div class="field"><label>Coleção</label><select name="collection"><option value="">Selecione</option>${state.collections.map((c) => `<option ${d.collection === c.name ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div><div class="field"><label>Estilo</label><input name="style" value="${esc(d.style)}"></div><div class="field"><label>Comprimento</label><input name="length" value="${esc(d.length)}"></div><div class="field"><label>Cores</label><input name="colors" value="${esc(d.colors)}"></div><div class="field"><label>Tamanhos</label><input name="sizes" value="${esc(d.sizes)}"></div><div class="field"><label>Disponibilidade</label><input name="availability" value="${esc(d.availability || "Consultar disponibilidade")}"></div><div class="field"><label>Preço (opcional)</label><input name="price" value="${esc(d.price)}"></div><div class="field full"><label>Descrição</label><textarea name="description">${esc(d.description)}</textarea></div><div class="field"><label>Status</label><select name="status"><option value="published" ${d.status !== "draft" ? "selected" : ""}>Publicado</option><option value="draft" ${d.status === "draft" ? "selected" : ""}>Rascunho</option></select></div><div class="field"><label>Ordem</label><input name="sort_order" type="number" value="${Number(d.sort_order || 0)}"></div><div class="field"><label>SEO Title</label><input name="seo_title" value="${esc(d.seo_title)}"></div><div class="field"><label>SEO Description</label><input name="seo_description" value="${esc(d.seo_description)}"></div><div class="field full"><label>Alt da foto principal</label><input name="alt_text" value="${esc(d.alt_text || d.name)}"></div><div class="field"><label><input type="checkbox" name="featured" ${d.featured ? "checked" : ""}> Destacar no catálogo</label></div></div>`;
 }
 function layout() {
-  root.innerHTML = `<div class="app"><aside class="side"><div class="mark">NH</div><div class="eyebrow">Painel do Atelier</div><nav>${["dashboard", "dresses", "media", "videos", "categories", "collections", "leads", "settings"].map((x) => `<button data-sec="${x}" class="${state.section === x ? "active" : ""}">${{ dashboard: "Visão geral", dresses: "Vestidos", media: "Fotos & galeria", videos: "Vídeos & links", categories: "Categorias", collections: "Coleções", leads: "Leads", settings: "Configurações" }[x]}</button>`).join("")}<button id="logout">Sair</button></nav></aside><main class="main"><div class="top"><div><div class="eyebrow">ATELIER NATÁLIA HUEBRA</div><h1>${{ dashboard: "Visão geral", dresses: "Vestidos", media: "Fotos & galeria", videos: "Vídeos & links", categories: "Categorias", collections: "Coleções", leads: "Leads", settings: "Configurações" }[state.section]}</h1></div><a class="btn secondary" href="/" target="_blank">Ver site</a></div><div id="content"></div></main></div>`;
+  root.innerHTML = `<div class="app"><aside class="side"><div class="mark">NH</div><div class="eyebrow">Painel do Atelier</div><nav>${["dashboard", "dresses", "media", "videos", "categories", "collections", "clients", "leads", "appointments", "settings"].map((x) => `<button data-sec="${x}" class="${state.section === x ? "active" : ""}">${{ dashboard: "Visão geral", dresses: "Vestidos", media: "Fotos & galeria", videos: "Vídeos & links", categories: "Categorias", collections: "Coleções", leads: "Leads", clients: "Clientes", appointments: "Agenda", settings: "Configurações" }[x]}</button>`).join("")}<button id="logout">Sair</button></nav></aside><main class="main"><div class="top"><div><div class="eyebrow">ATELIER NATÁLIA HUEBRA</div><h1>${{ dashboard: "Visão geral", dresses: "Vestidos", media: "Fotos & galeria", videos: "Vídeos & links", categories: "Categorias", collections: "Coleções", leads: "Leads", clients: "Clientes", appointments: "Agenda", settings: "Configurações" }[state.section]}</h1></div><a class="btn secondary" href="/" target="_blank">Ver site</a></div><div id="content"></div></main></div>`;
   document.querySelectorAll("[data-sec]").forEach(
     (b) =>
       (b.onclick = () => {
@@ -51,6 +53,8 @@ async function refresh() {
   [
     state.dresses,
     state.leads,
+    state.clients,
+    state.appointments,
     state.videos,
     state.categories,
     state.collections,
@@ -58,6 +62,8 @@ async function refresh() {
   ] = await Promise.all([
     api("/api/admin/dresses"),
     api("/api/admin/leads"),
+    api("/api/admin/clients"),
+    api("/api/admin/appointments"),
     api("/api/admin/videos"),
     api("/api/admin/categories"),
     api("/api/admin/collections"),
@@ -317,6 +323,34 @@ function leads() {
           })),
     );
 }
+function clients() {
+  const c = document.querySelector("#content");
+  c.innerHTML = `<div class="toolbar"><p>Cadastro e histórico básico de clientes do CRM.</p><button class="btn" id="new-client">Novo cliente</button></div><div class="table-wrap"><table class="table"><thead><tr><th>Nome</th><th>Contato</th><th>Ocasião</th><th>Status</th><th>Ações</th></tr></thead><tbody>${state.clients.map(x => `<tr><td><b>${esc(x.name)}</b><br><small>${esc(x.email || "")}</small></td><td>${esc(x.phone || x.whatsapp || "")}</td><td>${esc(x.occasion || "")}</td><td>${esc(x.status || "ativo")}</td><td><button class="btn danger client-del" data-id="${x.id}">Excluir</button></td></tr>`).join("")}</tbody></table></div>`;
+  document.querySelector("#new-client").onclick = () => clientModal();
+  document.querySelectorAll(".client-del").forEach(b => b.onclick = async () => {
+    if (!confirm("Excluir este cliente?")) return;
+    await api("/api/admin/clients/" + b.dataset.id, {method:"DELETE"});
+    await refresh(); clients();
+  });
+}
+function clientModal() {
+  const el=document.createElement("div"); el.className="modal";
+  el.innerHTML=`<div class="modal-card"><div class="top"><h2>Novo cliente</h2><button class="btn secondary close">Fechar</button></div><form id="cf"><div class="form-grid"><div class="field"><label>Nome *</label><input name="name" required></div><div class="field"><label>WhatsApp</label><input name="phone"></div><div class="field"><label>E-mail</label><input name="email" type="email"></div><div class="field"><label>Ocasião</label><input name="occasion" placeholder="Noiva, festa, madrinha..."></div><div class="field full"><label>Observações</label><textarea name="notes"></textarea></div></div><button class="btn">Salvar cliente</button></form></div>`;
+  document.body.appendChild(el); el.querySelector(".close").onclick=()=>el.remove();
+  el.querySelector("#cf").onsubmit=async e=>{e.preventDefault();try{await api("/api/admin/clients",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.fromEntries(new FormData(e.target).entries()))});el.remove();await refresh();clients();}catch(err){alert(err.message)}};
+}
+function appointments() {
+  const c=document.querySelector("#content");
+  c.innerHTML=`<div class="toolbar"><p>Agenda de consultas, provas, ajustes e entregas.</p><button class="btn" id="new-appt">Novo agendamento</button></div><div class="table-wrap"><table class="table"><thead><tr><th>Data</th><th>Cliente</th><th>Tipo</th><th>Status</th><th>Ações</th></tr></thead><tbody>${state.appointments.map(x=>`<tr><td>${esc(x.starts_at || x.scheduled_at || "")}</td><td>${esc(x.client_name || x.name || "")}</td><td>${esc(x.type || "consulta")}</td><td>${esc(x.status || "scheduled")}</td><td><button class="btn danger appt-del" data-id="${x.id}">Excluir</button></td></tr>`).join("")}</tbody></table></div>`;
+  document.querySelector("#new-appt").onclick=()=>appointmentModal();
+  document.querySelectorAll(".appt-del").forEach(b=>b.onclick=async()=>{if(!confirm("Excluir este agendamento?"))return;await api("/api/admin/appointments/"+b.dataset.id,{method:"DELETE"});await refresh();appointments();});
+}
+function appointmentModal(){
+  const el=document.createElement("div");el.className="modal";
+  el.innerHTML=`<div class="modal-card"><div class="top"><h2>Novo agendamento</h2><button class="btn secondary close">Fechar</button></div><form id="af"><div class="form-grid"><div class="field"><label>Cliente</label><select name="client_id"><option value="">Selecione</option>${state.clients.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("")}</select></div><div class="field"><label>Data e hora *</label><input name="starts_at" type="datetime-local" required></div><div class="field"><label>Tipo</label><select name="type"><option value="consultation">Consulta</option><option value="fitting">Prova</option><option value="adjustment">Ajuste</option><option value="delivery">Entrega</option></select></div><div class="field"><label>Duração (min)</label><input name="duration_minutes" type="number" min="15" value="60"></div><div class="field full"><label>Observações</label><textarea name="notes"></textarea></div></div><button class="btn">Salvar agendamento</button></form></div>`;
+  document.body.appendChild(el);el.querySelector(".close").onclick=()=>el.remove();
+  el.querySelector("#af").onsubmit=async e=>{e.preventDefault();try{await api("/api/admin/appointments",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.fromEntries(new FormData(e.target).entries()))});el.remove();await refresh();appointments();}catch(err){alert(err.message)}};
+}
 function settings() {
   const c = document.querySelector("#content");
   const s = state.settings;
@@ -367,7 +401,9 @@ async function renderSection() {
     if (state.section === "categories") simple("categories", state.categories);
     if (state.section === "collections")
       simple("collections", state.collections);
+    if (state.section === "clients") clients();
     if (state.section === "leads") leads();
+    if (state.section === "appointments") appointments();
     if (state.section === "settings") settings();
   } catch (e) {
     document.querySelector("#content").innerHTML =
